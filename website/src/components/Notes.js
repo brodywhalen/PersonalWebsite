@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 const dummyNotes = [
     'hello world',
     'testing',
@@ -6,6 +6,10 @@ const dummyNotes = [
 ]
 
 const Notes = () => {
+
+    const dragItem = useRef()
+    const dragOverItem = useRef()
+
     const[notes, setNotes] = useState(dummyNotes)
 
     const addNote = (event) => {
@@ -18,6 +22,26 @@ const Notes = () => {
         console.log("newNoteList: ", newNoteList)
         setNotes(newNoteList)
     
+    }
+    const dragStart = (e, index) => {
+        dragItem.current = index
+        console.log(e.target.innerHTML)
+    }
+    const dragEnter = (e, index) => {
+        dragOverItem.current = index
+        console.log(e.target.innerHTML)
+    }
+    const drop = (e) => {
+        const notesCopy = [...notes]
+        //console.log('drag item current :', dragItem)
+        const dragItemContent = notesCopy[dragItem.current]
+        //console.log('drag item content :', dragItemContent)
+        notesCopy.splice(dragItem.current,1)
+        notesCopy.splice(dragOverItem.current,0,dragItemContent)
+        dragItem.current = null
+        dragOverItem.current = null
+        setNotes(notesCopy)
+
     }
 
     console.log('notes at start: ', notes)
@@ -32,13 +56,13 @@ const Notes = () => {
                     create
                 </button>
             </form>
-            <div>
+            <div style = {{backgroundColor:'lightblue', margin:'20px 25%', textAlign:'left', fontSize:'24px'}}>
                 {notes.map((note,index) =>
         
-                    <li key = {index}>
+                    <ol key = {index} onDragStart={(e) => dragStart(e, index)} onDragEnter={ (e) => dragEnter(e, index) } onDragEnd={drop} draggable>
                             {note}
                             <Button index = {index} notes = {notes} setNotes = {setNotes} />
-                    </li>
+                    </ol>
                     
                 )}
             </div>
