@@ -1,32 +1,52 @@
 import { useState, useRef, useEffect } from "react"
 import axios from "axios"
-const dummyNotes = [
-    [
-        'hello world',
-        'testing',
-        'first project on my own!'
-    ],
-    [
-        'finished column',
-        'gay sex is gay',
-        'I\'m going to get a sale'
-    ]
-]
+// const dummyNotes = [
+//     [
+//         'hello world',
+//         'testing',
+//         'first project on my own!'
+//     ],
+//     [
+//         'finished column',
+//         'gay sex is gay',
+//         'I\'m going to get a sale'
+//     ]
+// ]
  
 
 const Notes = () => {
+    
 
-    useEffect = (() => {
-        //load data
-        
-
-    }, [])
 
     const dragItem = useRef()
     const dragOverItem = useRef()
     const dragOverItemColumn = useRef()
+    const isMounted = useRef(false)
 
-    const[notes, setNotes] = useState(dummyNotes)
+    const[notes, setNotes] = useState([[],[]])
+
+    useEffect(() => {
+        console.log('is this working?')
+        axios.get('http://localhost:3001/notes').then(response => {
+            console.log(response)
+            setNotes(response.data[0].notes)
+            isMounted.current = false    
+        
+        })
+
+    }, [])
+    useEffect(() => {
+        if(isMounted.current){
+                console.log('running on startup?')
+                axios.put('http://localhost:3001/notes/1', {"notes": notes}).then(response => {
+                console.log('running on startup?', response)
+            })
+        } else {
+            isMounted.current = true
+        }
+
+    }, [notes])
+    
     
 
     const addNote = (event) => {
